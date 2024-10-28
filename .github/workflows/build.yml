@@ -14,12 +14,5 @@ jobs:
     - uses: actions/checkout@v4
     - name: make
       run: make ci
-
-  tests:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
     - name: Run tests
       run: ./bin/weblist
