@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS= -g -o0 -Wall
 SRCDIR=./src
 BINDIR=./bin
-PROGRAM_NAME=program
+PROGRAM_NAME=weblist
 
 # Generates bin folder and the main program
 all: $(BINDIR) $(BINDIR)/$(PROGRAM_NAME)
@@ -23,7 +23,8 @@ $(BINDIR):
 
 # Dependencies. Register here all .c file dependency
 # $(SRCDIR)/dependency.o:	$(SRCDIR)/req_1.o $(SRCDIR)/req_2.o ...
+$(SRCDIR)/weblist.o: $(SRCDIR)/DDLL.o
 
 # Main build dependencies
-$(BINDIR)/$(PROGRAM_NAME): $(SRCDIR)/dep.o
+$(BINDIR)/$(PROGRAM_NAME): $(SRCDIR)/DDLL.o $(SRCDIR)/weblist.o
 	$(CC) $(CFLAGS) $? $(SRCDIR)/main.c -o $(BINDIR)/$(PROGRAM_NAME)

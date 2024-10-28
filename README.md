@@ -1,6 +1,10 @@
-# c-makefile-template
+# Weblist
 
-C program with Makefile generic configuration
+Trabalho final da disciplina de PAA do Programa de mestrado da UDESC.
+
+Criação de uma estrutura mista de árvores octogonais e listas lincadas para armazenamento arbitrário de dados e balanceamento.
+
+[PAA_2024__Weblist.pdf](./docs/PAA_2024__WebList.pdf)
 
 ## Getting Started
 
