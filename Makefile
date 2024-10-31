@@ -27,4 +27,4 @@ $(SRCDIR)/weblist.o: $(SRCDIR)/DDLL.o
 
 # Main build dependencies
 $(BINDIR)/$(PROGRAM_NAME): $(SRCDIR)/DDLL.o $(SRCDIR)/weblist.o
-	$(CC) $(CFLAGS) $? $(SRCDIR)/main.c -o $(BINDIR)/$(PROGRAM_NAME)
+	$(CC) $(CFLAGS) $? $(SRCDIR)/main.c -o $(BINDIR)/$(PROGRAM_NAME) -lm
