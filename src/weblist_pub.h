@@ -45,7 +45,7 @@ typedef struct weblist_t *weblist_p, **weblist_pp;
  * @returns 0 se a estrutura foi criada e inicializada corretamente,
  * @returns -1 caso contrário.
  */
-int weblist_create (weblist_pp pp_weblist, size_t depth, size_t data_size);
+int weblist_create(weblist_pp pp_weblist, size_t depth, size_t data_size);
 
 /**
  * Desaloca um descritor e todas as suas dependências.
@@ -55,7 +55,7 @@ int weblist_create (weblist_pp pp_weblist, size_t depth, size_t data_size);
  * @return 0 se a estrutura e suas dependências foram destruídas corretamente,
  * @return -1 caso contrário. 
  */
-int weblist_destruct (weblist_pp pp_weblist, compare_fn cmp); // destruir a estrutura ;
+int weblist_destruct(weblist_pp pp_weblist); // destruir a estrutura ;
 
 
 /**

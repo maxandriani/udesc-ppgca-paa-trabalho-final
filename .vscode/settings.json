@@ -2,5 +2,15 @@
     "cSpell.language": "en,pt,pt-BR",
     "cSpell.words": [
         "weblist"
+    ],
+    "files.associations": {
+        "complex": "c"
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/Users/maxandriani/Projects/udesc-ppgca-paa-trabalho-final/bin",
+            "binaryPath": "/Users/maxandriani/Projects/udesc-ppgca-paa-trabalho-final/bin/weblist",
+            "binaryArgs": []
+        }
     ]
 }
