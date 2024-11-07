@@ -118,10 +118,11 @@ int weblist_copy_list_by_key(weblist_p weblist, int key, ppDDLL list);
  * @param weblist referência do descritor da estrutura.
  * @param key Índice da chave associada a sub coleção desejada.
  * @param list referência do descritor da lista (somente leitura) a ser copiada.
+ * @param cmp função de comparação dos dados.
  * @returns `0` caso a chave exista, e a lista seja corretamente substituída.
  * @returns `-1` caso contrário.
  */
-int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list);
+int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_fn cmp);
 
 /**
  * Remove uma subcoleção da estrutura correspondente a chave informada e copia os dados para uma lista de saída.
@@ -134,15 +135,15 @@ int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list);
  */
 int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list);
 
-/**
- * Cria uma lista vazia na chave de referência.
- * 
- * @param weblist referência do descritor da estrutura.
- * @param key Índice da chave associada a sub coleção desejada.
- * @returns `0` caso a chave ainda não possua uma lista, e uma nova lista seja criada e inicializada.
- * @returns `-1` caso contrário.
- */
-int weblist_create_list_by_key(weblist_p weblist, int key);
+// /**
+//  * Cria uma lista vazia na chave de referência.
+//  * 
+//  * @param weblist referência do descritor da estrutura.
+//  * @param key Índice da chave associada a sub coleção desejada.
+//  * @returns `0` caso a chave ainda não possua uma lista, e uma nova lista seja criada e inicializada.
+//  * @returns `-1` caso contrário.
+//  */
+// int weblist_create_list_by_key(weblist_p weblist, int key);
 
 
 /**

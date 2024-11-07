@@ -27,7 +27,6 @@ void should_weblist_walk_data_validate_null_pointers();
 void should_weblist_copy_list_by_key_validate_null_pointers();
 void should_weblist_replace_list_by_key_validate_null_pointers();
 void should_weblist_remove_list_by_key_validate_null_pointers();
-void should_weblist_create_list_by_key_validate_null_pointers();
 void should_weblist_count_by_key_validate_null_pointers();
 void should_weblist_total_of_keys_validate_null_pointers();
 void should_weblist_count_validate_null_pointers();

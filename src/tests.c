@@ -68,7 +68,6 @@ int main(int argc, char *argv[]) {
     should_weblist_copy_list_by_key_validate_null_pointers();
     should_weblist_replace_list_by_key_validate_null_pointers();
     should_weblist_remove_list_by_key_validate_null_pointers();
-    should_weblist_create_list_by_key_validate_null_pointers();
     should_weblist_count_by_key_validate_null_pointers();
     should_weblist_total_of_keys_validate_null_pointers();
     should_weblist_count_validate_null_pointers();
@@ -150,9 +149,10 @@ void should_weblist_copy_list_by_key_validate_null_pointers() {
 void should_weblist_replace_list_by_key_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     pDDLL list = (pDDLL) 0x11;
-    assert(weblist_replace_list_by_key(NULL, 1, list) == SUCCESS, __func__);
-    assert(weblist_replace_list_by_key(weblist, -1, list) == SUCCESS, __func__);
-    assert(weblist_replace_list_by_key(weblist, 0, NULL) == SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(NULL, 1, list, compare_int) == SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, -1, list, compare_int) == SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, 0, NULL, compare_int) == SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, 0, list, NULL) == SUCCESS, __func__);
 }
 
 void should_weblist_remove_list_by_key_validate_null_pointers() {
@@ -161,12 +161,6 @@ void should_weblist_remove_list_by_key_validate_null_pointers() {
     assert(weblist_remove_list_by_key(NULL, 1, &list) == SUCCESS, __func__);
     assert(weblist_remove_list_by_key(weblist, -1, &list) == SUCCESS, __func__);
     assert(weblist_remove_list_by_key(weblist, 0, NULL) == SUCCESS, __func__);
-}
-
-void should_weblist_create_list_by_key_validate_null_pointers() {
-    weblist_p weblist = (weblist_p) 0x11;
-    assert(weblist_create_list_by_key(NULL, 1) == SUCCESS, __func__);
-    assert(weblist_create_list_by_key(weblist, -1) == SUCCESS, __func__);
 }
 
 void should_weblist_count_by_key_validate_null_pointers() {
@@ -387,7 +381,7 @@ void should_replace_a_branch_of_weblist_and_keep_balance() {
     }
     
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
-    assert(weblist_replace_list_by_key(weblist, 32, replace_list) == SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, 32, replace_list, compare_int) == SUCCESS, __func__);
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
 
     for (size_t i = (512 * 64); i < num_elements; i++) {

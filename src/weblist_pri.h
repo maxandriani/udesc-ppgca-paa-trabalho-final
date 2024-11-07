@@ -6,21 +6,28 @@
 #include <stdlib.h>
 #include <math.h>
 
+typedef struct list_t *list_p, **list_pp;
+
+typedef struct list_t {
+    int key;
+    size_t count;
+    size_t data_size;
+    pDDLL data;
+    list_p next;
+    list_p prev;
+    weblist_p root;
+} list_t;
+
 typedef union leaf_t {
     weblist_p node;
-    pDDLL list;
+    list_p list;
 } leaf_t;
 
 typedef struct weblist_t {
-    size_t depth;
-    size_t count[8];
+    weblist_p root;
+    size_t level;
     leaf_t leafs[8];
-    size_t data_size;
+    void * boundaries[8];
 } weblist_t;
-
-int _create_leaf_node(weblist_p root, size_t level);
-int _destroy_leaf_node(weblist_p root, size_t level);
-int _calc_number_of_nodes_by_level(int level);
-size_t _calc_total_count(size_t *count);
 
 #endif
