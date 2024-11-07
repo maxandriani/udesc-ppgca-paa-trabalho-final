@@ -64,7 +64,7 @@ int _calc_number_of_nodes_by_level(int level) {
     return pow(8, (level + 1));
 }
 
-int weblist_create (weblist_pp pp_weblist, size_t depth, size_t data_size) {
+int weblist_create(weblist_pp pp_weblist, size_t depth, size_t data_size) {
     if (pp_weblist == NULL || *pp_weblist != NULL || data_size <= 0) return FAIL;
     if (depth < 0) return FAIL;
 
@@ -85,7 +85,7 @@ int weblist_create (weblist_pp pp_weblist, size_t depth, size_t data_size) {
     return SUCCESS;
 }
 
-int weblist_destruct (weblist_pp pp_weblist) {
+int weblist_destruct(weblist_pp pp_weblist) {
     if (pp_weblist == NULL || *pp_weblist == NULL) return FAIL;
 
     if (_destroy_leaf_node(*pp_weblist, 0) == FAIL) {
@@ -119,7 +119,7 @@ int _add_data(weblist_p root, void *data, int level) {
     return SUCCESS;
 }
 
-int weblist_add_data(weblist_p weblist, void *data) {
+int weblist_add_data(weblist_p weblist, void *data, compare_fn cmp) {
     if (weblist == NULL || data == NULL) return FAIL; 
 
     if (_add_data(weblist, data, 0) == FAIL)
@@ -128,7 +128,7 @@ int weblist_add_data(weblist_p weblist, void *data) {
     return SUCCESS;
 }
 
-int weblist_remove_data(weblist_p weblist, void *data) {
+int weblist_remove_data(weblist_p weblist, void *data, compare_fn cmp) {
     return FAIL;
 }
 

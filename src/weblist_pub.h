@@ -67,7 +67,7 @@ int weblist_destruct(weblist_pp pp_weblist); // destruir a estrutura ;
  * @returns `0` se o dado for adicionado corretamente.
  * @returns `-1` caso contrário.
  */
-int weblist_add_data(weblist_p webslit, void *data);
+int weblist_add_data(weblist_p weblist, void *data, compare_fn compare);
 
 /**
  * Remove um registro na coleção.
@@ -77,7 +77,7 @@ int weblist_add_data(weblist_p webslit, void *data);
  * @returns `0` se o dado foi removido corretamente.
  * @returns `1` caso contrário.
  */
-int weblist_remove_data(weblist_p weblist, void *data);
+int weblist_remove_data(weblist_p weblist, void *data, compare_fn compare);
 
 /**
  * Verificar se um dado existe na coleção.
