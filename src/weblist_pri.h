@@ -26,6 +26,7 @@ typedef union leaf_t {
 typedef struct weblist_t {
     weblist_p root;
     size_t level;
+    size_t depth;
     leaf_t leafs[8];
     void * boundaries[8];
 } weblist_t;
