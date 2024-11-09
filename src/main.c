@@ -4,10 +4,14 @@
 
 int * PROCESS_WALK_RESULT = NULL;
 size_t PROCESS_WALK_RESULT_IDX = 0;
+char LAST_ASSERT_MSG[1024] = "";
 
 void assert(int result, const char* fn_name) {
     if (result == 1) {
-        // printf("SUCCESS: %s\n", fn_name);
+        if (strcmp(LAST_ASSERT_MSG, fn_name) != 0) {
+            printf("SUCCESS: %s\n", fn_name);
+            strcpy(LAST_ASSERT_MSG, fn_name);
+        }
     } else {
         printf("FAIL: %s\n", fn_name);
         exit(1);
@@ -97,104 +101,104 @@ int main(int argc, char *argv[]) {
 void should_weblist_create_validate_null_pointers() {
     weblist_p weblist_ok = NULL;
     weblist_p weblist_nok = (weblist_p) 0x11;
-    assert(weblist_create(NULL, 0, 4) == SUCCESS, __func__);
-    assert(weblist_create(&weblist_ok, 0, 0) == SUCCESS, __func__);
-    assert(weblist_create(&weblist_nok, 0, 4) == SUCCESS, __func__);
+    assert(weblist_create(NULL, 0, 4) != SUCCESS, __func__);
+    assert(weblist_create(&weblist_ok, 0, 0) != SUCCESS, __func__);
+    assert(weblist_create(&weblist_nok, 0, 4) != SUCCESS, __func__);
 }
 
 void should_weblist_destruct_validate_null_pointers() {
     weblist_p weblist_nok = NULL;
-    assert(weblist_destruct(NULL) == SUCCESS, __func__);
-    assert(weblist_destruct(&weblist_nok) == SUCCESS, __func__);
+    assert(weblist_destruct(NULL) != SUCCESS, __func__);
+    assert(weblist_destruct(&weblist_nok) != SUCCESS, __func__);
 }
 
 void should_weblist_add_data_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     int data;
-    assert(weblist_add_data(NULL, &data, compare_int) == SUCCESS, __func__);
-    assert(weblist_add_data(weblist, NULL, compare_int) == SUCCESS, __func__);
-    assert(weblist_add_data(weblist, &data, NULL) == SUCCESS, __func__);
+    assert(weblist_add_data(NULL, &data, compare_int) != SUCCESS, __func__);
+    assert(weblist_add_data(weblist, NULL, compare_int) != SUCCESS, __func__);
+    assert(weblist_add_data(weblist, &data, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_remove_data_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     int data;
-    assert(weblist_remove_data(NULL, &data, compare_int) == SUCCESS, __func__);
-    assert(weblist_remove_data(weblist, NULL, compare_int) == SUCCESS, __func__);
-    assert(weblist_remove_data(weblist, &data, NULL) == SUCCESS, __func__);
+    assert(weblist_remove_data(NULL, &data, compare_int) != SUCCESS, __func__);
+    assert(weblist_remove_data(weblist, NULL, compare_int) != SUCCESS, __func__);
+    assert(weblist_remove_data(weblist, &data, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_search_data_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     int data;
-    assert(weblist_search_data(NULL, &data, compare_int) == SUCCESS, __func__);
-    assert(weblist_search_data(weblist, NULL, compare_int) == SUCCESS, __func__);
-    assert(weblist_search_data(weblist, &data, NULL) == SUCCESS, __func__);
+    assert(weblist_search_data(NULL, &data, compare_int) != SUCCESS, __func__);
+    assert(weblist_search_data(weblist, NULL, compare_int) != SUCCESS, __func__);
+    assert(weblist_search_data(weblist, &data, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_walk_data_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
-    assert(weblist_walk_data(NULL, process_int) == SUCCESS, __func__);
-    assert(weblist_walk_data(weblist, NULL) == SUCCESS, __func__);
+    assert(weblist_walk_data(NULL, process_int) != SUCCESS, __func__);
+    assert(weblist_walk_data(weblist, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_copy_list_by_key_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     pDDLL list = (pDDLL) 0x11;
-    assert(weblist_copy_list_by_key(NULL, 1, &list) == SUCCESS, __func__);
-    assert(weblist_copy_list_by_key(weblist, -1, &list) == SUCCESS, __func__);
-    assert(weblist_copy_list_by_key(weblist, 0, NULL) == SUCCESS, __func__);
+    assert(weblist_copy_list_by_key(NULL, 1, &list) != SUCCESS, __func__);
+    assert(weblist_copy_list_by_key(weblist, -1, &list) != SUCCESS, __func__);
+    assert(weblist_copy_list_by_key(weblist, 0, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_replace_list_by_key_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     pDDLL list = (pDDLL) 0x11;
-    assert(weblist_replace_list_by_key(NULL, 1, list, compare_int) == SUCCESS, __func__);
-    assert(weblist_replace_list_by_key(weblist, -1, list, compare_int) == SUCCESS, __func__);
-    assert(weblist_replace_list_by_key(weblist, 0, NULL, compare_int) == SUCCESS, __func__);
-    assert(weblist_replace_list_by_key(weblist, 0, list, NULL) == SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(NULL, 1, list, compare_int) != SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, -1, list, compare_int) != SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, 0, NULL, compare_int) != SUCCESS, __func__);
+    assert(weblist_replace_list_by_key(weblist, 0, list, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_remove_list_by_key_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     pDDLL list = (pDDLL) 0x11;
-    assert(weblist_remove_list_by_key(NULL, 1, &list, compare_int) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, -1, &list, compare_int) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, 0, NULL, compare_int) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, 0, &list, NULL) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(NULL, 1, &list, compare_int) != SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, -1, &list, compare_int) != SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 0, NULL, compare_int) != SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 0, &list, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_count_by_key_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     int count;
-    assert(weblist_count_by_key(NULL, 0, &count) == SUCCESS, __func__);
-    assert(weblist_count_by_key(weblist, -1, &count) == SUCCESS, __func__);
-    assert(weblist_count_by_key(weblist, 1, NULL) == SUCCESS, __func__);
+    assert(weblist_count_by_key(NULL, 0, &count) != SUCCESS, __func__);
+    assert(weblist_count_by_key(weblist, -1, &count) != SUCCESS, __func__);
+    assert(weblist_count_by_key(weblist, 1, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_total_of_keys_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     int count;
-    assert(weblist_total_of_keys(NULL, &count) == SUCCESS, __func__);
-    assert(weblist_total_of_keys(weblist, NULL) == SUCCESS, __func__);
+    assert(weblist_total_of_keys(NULL, &count) != SUCCESS, __func__);
+    assert(weblist_total_of_keys(weblist, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_count_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     int count;
-    assert(weblist_count(NULL, &count) == SUCCESS, __func__);
-    assert(weblist_count(weblist, NULL) == SUCCESS, __func__);
+    assert(weblist_count(NULL, &count) != SUCCESS, __func__);
+    assert(weblist_count(weblist, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_get_keys_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     pDDLL list_of_keys = (pDDLL) 0x11;
-    assert(weblist_get_keys(NULL, &list_of_keys) == SUCCESS, __func__);
-    assert(weblist_get_keys(weblist, NULL) == SUCCESS, __func__);
+    assert(weblist_get_keys(NULL, &list_of_keys) != SUCCESS, __func__);
+    assert(weblist_get_keys(weblist, NULL) != SUCCESS, __func__);
 }
 
 void should_weblist_is_balanced_validate_null_pointers() {
-    assert(weblist_is_balanced(NULL) == SUCCESS, __func__);
+    assert(weblist_is_balanced(NULL) != SUCCESS, __func__);
 }
 
 void should_create_a_weblist_of_level_zero() {

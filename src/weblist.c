@@ -78,7 +78,7 @@ int _find_max_value(list_p list, void *value, compare_fn cmp) {
 }
 
 int _create_leaf_node(list_pp list, size_t data_size) {
-    *list = malloc(sizeof(list_p));
+    *list = malloc(sizeof(list_t));
     if (*list == NULL) return FAIL;
     (*list)->count = 0;
     (*list)->data = NULL;
@@ -106,7 +106,7 @@ int _create_node(weblist_pp root, list_pp last, size_t level, size_t depth, size
         for (size_t i = 0; i < 8; i++) {
             if (_create_leaf_node(&((*root)->leafs[i].list), data_size) == FAIL) return FAIL;
             
-            if (last != NULL) {
+            if (*last != NULL) {
                 (*root)->leafs[i].list->key = (*last)->key + 1;
                 (*last)->next = (*root)->leafs[i].list;
             }
@@ -174,7 +174,7 @@ void _shift_left(list_p list, compare_fn cmp) {
     list_p current = list;
     void *element = malloc(list->data_size);
     
-    while (current->next->count == 0)
+    while (current->next != NULL && current->next->count == 0)
         current = current->next;
 
     _find_min_value(current, element, cmp);
@@ -188,7 +188,7 @@ void _shift_right(list_p list, compare_fn cmp) {
     list_p current = list;
     void *element = malloc(list->data_size);
     
-    while (current->prev->count == 0)
+    while (current->prev != NULL && current->prev->count == 0)
         current = current->prev;
 
     _find_min_value(current, element, cmp);
@@ -274,7 +274,7 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
 }
 
 int weblist_add_data(weblist_p weblist, void *data, compare_fn cmp) {
-    if (weblist == NULL || data == NULL) return FAIL;
+    if (weblist == NULL || data == NULL || cmp == NULL) return FAIL;
 
     if (_add_data(weblist, data, cmp) == FAIL)
         return FAIL;
@@ -421,7 +421,7 @@ int weblist_copy_list_by_key(weblist_p weblist, int key, ppDDLL list) {
 }
 
 int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_fn cmp) {
-    if (weblist == NULL || key < 0 || list == NULL)
+    if (weblist == NULL || key < 0 || list == NULL || cmp == NULL)
         return FAIL;
 
     list_p local_list = NULL;
@@ -449,7 +449,7 @@ int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_
 }
 
 int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list, compare_fn cmp) {
-    if (weblist == NULL || key < 0 || list == NULL)
+    if (weblist == NULL || key < 0 || list == NULL || cmp == NULL)
         return FAIL;
 
     list_p local_list = NULL;

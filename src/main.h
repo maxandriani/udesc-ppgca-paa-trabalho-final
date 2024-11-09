@@ -2,6 +2,7 @@
 #include "DDLL_pub.h"
 #include "weblist_pub.h"
 #include <memory.h>
+#include <string.h>
 
 typedef struct test_type_t {
     int a;
