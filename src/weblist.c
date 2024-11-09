@@ -169,8 +169,70 @@ int weblist_destruct(weblist_pp pp_weblist) {
     return _destroy_node(pp_weblist);
 }
 
-void _balance(list_p list, size_t depth, compare_fn cmp) {
+void _shift_left(list_p list, size_t min_count, compare_fn cmp) {
+    void *element = malloc(list->data_size);
+    
+    while (list->next != NULL && list->next->count > min_count) {
+        _find_min_value(list->next, element, cmp);
+        rEnd(list->next->data, element);
+        iEnd(list->data, element);
+        list = list->next;
+    }
 
+    free(element);
+}
+
+void _shift_right(list_p list, size_t min_count, compare_fn cmp) {
+    void *element = malloc(list->data_size);
+    
+    while (list->prev != NULL && list->prev->count > min_count) {
+        _find_max_value(list->prev, element, cmp);
+        rEnd(list->prev->data, element);
+        iEnd(list->prev->data, element);
+        list = list->prev;
+    }
+
+    free(element);
+}
+
+void _balance(list_p list, size_t depth, compare_fn cmp) {
+    list_p head = list;
+    list_p tail = list;
+    size_t count = list->count;
+    size_t min_count;
+    int total_of_keys;
+    int idx_flip;
+
+    weblist_total_of_keys(list->root, &total_of_keys);
+
+    while (head->prev != NULL) {
+        head = head->prev;
+        count += head->count;
+    }
+
+    while (tail->next != NULL) {
+        tail = tail->next;
+        count += tail->count;
+    }
+    
+    min_count = count / total_of_keys;
+    idx_flip = count % total_of_keys;
+
+    if (idx_flip > list->key) {
+        while (list->count < (min_count + 1)) {
+            _shift_left(list, min_count, cmp);
+        }
+        while (list->count > min_count) {
+            _shift_right(list, (min_count + 1), cmp);
+        }   
+    } else {
+        while (list->count < min_count) {
+            _shift_left(list, min_count, cmp);
+        }
+        while (list->count > min_count) {
+            _shift_right(list, min_count, cmp);
+        }  
+    }
 }
 
 size_t _calc_insert_idx(weblist_p root, void *data, compare_fn cmp) {
