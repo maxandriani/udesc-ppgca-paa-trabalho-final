@@ -98,6 +98,7 @@ int _create_node(weblist_pp root, list_pp last, size_t level, size_t depth, size
 
     (*root)->level = level;
     (*root)->depth = depth;
+    (*root)->data_size = data_size;
     memset((*root)->boundaries, 0, data_size * 8);
     
     if (_is_leaf_node(*root)) {
@@ -169,69 +170,78 @@ int weblist_destruct(weblist_pp pp_weblist) {
     return _destroy_node(pp_weblist);
 }
 
-void _shift_left(list_p list, size_t min_count, compare_fn cmp) {
+void _shift_left(list_p list, compare_fn cmp) {
+    list_p current = list;
     void *element = malloc(list->data_size);
     
-    while (list->next != NULL && list->next->count > min_count) {
-        _find_min_value(list->next, element, cmp);
-        rEnd(list->next->data, element);
-        iEnd(list->data, element);
-        list = list->next;
-    }
+    while (current->next->count == 0)
+        current = current->next;
+
+    _find_min_value(current, element, cmp);
+    rEnd(current->data, element);
+    iEnd(list->data, element);
 
     free(element);
 }
 
-void _shift_right(list_p list, size_t min_count, compare_fn cmp) {
+void _shift_right(list_p list, compare_fn cmp) {
+    list_p current = list;
     void *element = malloc(list->data_size);
     
-    while (list->prev != NULL && list->prev->count > min_count) {
-        _find_max_value(list->prev, element, cmp);
-        rEnd(list->prev->data, element);
-        iEnd(list->prev->data, element);
-        list = list->prev;
-    }
+    while (current->prev->count == 0)
+        current = current->prev;
+
+    _find_min_value(current, element, cmp);
+    rEnd(current->data, element);
+    iEnd(list->data, element);
 
     free(element);
 }
 
-void _balance(list_p list, size_t depth, compare_fn cmp) {
-    list_p head = list;
-    list_p tail = list;
-    size_t count = list->count;
-    size_t min_count;
+void _rebuild_index(weblist_p root, compare_fn cmp) {
+    if (_is_leaf_node(root)) {
+        for (size_t i = 0; i < 7; i++)
+            _find_min_value(root->leafs[i + 1].list, &root->boundaries[i], cmp);
+    } else {
+        for (size_t i = 0; i < 8; i++) {
+            _rebuild_index(root->leafs[i].node, cmp);
+        }
+        for (size_t i = 0; i < 7; i++) {
+            memcpy(&root->boundaries[i], &(root->leafs[i + 1].node->boundaries[0]), root->data_size);
+        }
+    }
+};
+
+void _balance(weblist_p root, compare_fn cmp) {
+    list_p head = _get_leaftish_leaf(root);
+    list_p current = head;
+    int count = 0;
+    size_t min_count = 0;
     int total_of_keys;
     int idx_flip;
 
-    weblist_total_of_keys(list->root, &total_of_keys);
-
-    while (head->prev != NULL) {
-        head = head->prev;
-        count += head->count;
-    }
-
-    while (tail->next != NULL) {
-        tail = tail->next;
-        count += tail->count;
-    }
+    weblist_total_of_keys(root, &total_of_keys);
+    weblist_count(root, &count);
     
     min_count = count / total_of_keys;
     idx_flip = count % total_of_keys;
 
-    if (idx_flip > list->key) {
-        while (list->count < (min_count + 1)) {
-            _shift_left(list, min_count, cmp);
+    while (current != NULL) {
+        // metade do count + 1 --- resto
+        if (current->key < idx_flip) {
+            while (current->count < (min_count + 1))
+                _shift_left(current, cmp);
+
+            while (current->count > (min_count + 1))
+                _shift_right(current, cmp);
+        } else {
+            while (current->count < min_count)
+                _shift_left(current, cmp);
+
+            while (current->count > min_count)
+                _shift_right(current, cmp);
         }
-        while (list->count > min_count) {
-            _shift_right(list, (min_count + 1), cmp);
-        }   
-    } else {
-        while (list->count < min_count) {
-            _shift_left(list, min_count, cmp);
-        }
-        while (list->count > min_count) {
-            _shift_right(list, min_count, cmp);
-        }  
+        current = current->next;
     }
 }
 
@@ -249,7 +259,6 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
 
         leaf->count++;
         iEnd(leaf->data, data);
-        _balance(leaf, root->depth, cmp);
 
         return SUCCESS;
     } else {
@@ -267,7 +276,13 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
 int weblist_add_data(weblist_p weblist, void *data, compare_fn cmp) {
     if (weblist == NULL || data == NULL) return FAIL;
 
-    return _add_data(weblist, data, cmp);
+    if (_add_data(weblist, data, cmp) == FAIL)
+        return FAIL;
+
+    _balance(weblist, cmp);
+    _rebuild_index(weblist, cmp);
+
+    return SUCCESS;
 }
 
 int _remove_data(weblist_p root, void *data, compare_fn cmp) {
@@ -277,8 +292,6 @@ int _remove_data(weblist_p root, void *data, compare_fn cmp) {
         int found_at_idx = _search_and_delete_by_value(leaf, data, cmp);
         
         if (found_at_idx == -1) return FAIL;
-
-        _balance(leaf, root->depth, cmp);
 
         return SUCCESS;
     } else {
@@ -297,7 +310,13 @@ int weblist_remove_data(weblist_p weblist, void *data, compare_fn cmp) {
     if (weblist == NULL || data == NULL || cmp == NULL)
         return FAIL;
 
-    return _remove_data(weblist, data, cmp);
+    if (_remove_data(weblist, data, cmp) == FAIL)
+        return FAIL;
+    
+    _balance(weblist, cmp);
+    _rebuild_index(weblist, cmp);
+
+    return SUCCESS;
 }
 
 int _search_data(weblist_p root, void *data, compare_fn cmp) {
@@ -382,23 +401,21 @@ int weblist_copy_list_by_key(weblist_p weblist, int key, ppDDLL list) {
         return FAIL;
 
     list_p local_list = NULL;
-    pDDLL tmp = NULL;
     void *element = NULL;
 
     if (_get_list_by_key(weblist, &local_list, key) == FAIL)
         return FAIL;
     
-    cDDLL(&tmp, local_list->data_size);
+    element = malloc(local_list->data_size);
     cDDLL(list, local_list->data_size);
     
     for (size_t i = 0; i < local_list->count; i++) {
         rBegin(local_list->data, element);
-        iEnd(tmp, element);
+        iEnd(local_list->data, element);
         iEnd(*list, element);
     }
 
-    dDDLL(&local_list->data);
-    local_list->data = tmp;
+    free(element);
 
     return SUCCESS;
 }
@@ -408,23 +425,30 @@ int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_
         return FAIL;
 
     list_p local_list = NULL;
-    size_t idx = 0;
     void *element = NULL;
+    int count = countElements(list);
 
     if (_get_list_by_key(weblist, &local_list, key) == FAIL)
         return FAIL;
 
+    element = malloc(local_list->data_size);
     cleanDDLL(local_list->data);
 
-    while (sPosition(list, idx, element) != FAIL) {
-        weblist_add_data(weblist, element, cmp);
-        idx++;
+    for (size_t i = 0; i < count; i++) {
+        rBegin(list, element);
+        iEnd(list, element);
+        _add_data(weblist, element, cmp);
     }
+    
+    free(element);
+
+    _balance(weblist, cmp);
+    _rebuild_index(weblist, cmp);
     
     return SUCCESS;
 }
 
-int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list) {
+int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list, compare_fn cmp) {
     if (weblist == NULL || key < 0 || list == NULL)
         return FAIL;
 
@@ -433,7 +457,11 @@ int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list) {
     if (_get_list_by_key(weblist, &local_list, key) == FAIL)
         return FAIL;
 
-    return cleanDDLL(local_list->data);
+    cleanDDLL(local_list->data);
+    _balance(weblist, cmp);
+    _rebuild_index(weblist, cmp);
+
+    return SUCCESS;
 }
 
 int weblist_count_by_key(weblist_p weblist, int key, int *count) {
@@ -463,15 +491,12 @@ int weblist_count(weblist_p weblist, int *count) {
     if (weblist == NULL || count == NULL)
         return FAIL;
 
-    list_p local_list = NULL;
+    list_p local_list = _get_leaftish_leaf(weblist);
     *count = 0;
 
-    if (_get_list_by_key(weblist, &local_list, 0) == FAIL)
-        return FAIL;
-
     while (local_list != NULL) {
-        local_list = local_list->next;
         (*count) += local_list->count;
+        local_list = local_list->next;
     }
     
     return SUCCESS;

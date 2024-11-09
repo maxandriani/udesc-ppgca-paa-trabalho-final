@@ -133,7 +133,8 @@ int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_
  * @returns `0` caso a chave exista, e a lista seja copiada e removida corretamente.
  * @returns `-1` caso contrário.
  */
-int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list);
+// int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list);
+int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list, compare_fn cmp);
 
 // /**
 //  * Cria uma lista vazia na chave de referência.

@@ -158,9 +158,10 @@ void should_weblist_replace_list_by_key_validate_null_pointers() {
 void should_weblist_remove_list_by_key_validate_null_pointers() {
     weblist_p weblist = (weblist_p) 0x11;
     pDDLL list = (pDDLL) 0x11;
-    assert(weblist_remove_list_by_key(NULL, 1, &list) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, -1, &list) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, 0, NULL) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(NULL, 1, &list, compare_int) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, -1, &list, compare_int) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 0, NULL, compare_int) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 0, &list, NULL) == SUCCESS, __func__);
 }
 
 void should_weblist_count_by_key_validate_null_pointers() {
@@ -303,8 +304,8 @@ void should_remove_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balanc
         assert(weblist_add_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
     }
 
-    assert(weblist_remove_list_by_key(weblist, 0, &check_list_1) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, 32, &check_list_1) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 0, &check_list_1, compare_int) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 32, &check_list_1, compare_int) == SUCCESS, __func__);
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
 
     for (size_t i = 0; i < 992; i++) {
