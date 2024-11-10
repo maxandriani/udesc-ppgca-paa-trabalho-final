@@ -253,8 +253,8 @@ void should_add_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balance()
         sBegin(check_list_1, &check_results_1);
         sBegin(check_list_2, &check_results_2);
 
-        assert(check_results_2 >= 0 && check_results_2 <= 256, __func__);
-        assert(check_results_1 >= (256 * 511) && check_results_1 <= (256 * 512), __func__);
+        assert(check_results_1 >= 0 && check_results_1 <= 256, __func__);
+        assert(check_results_2 >= (256 * 511) && check_results_2 <= (256 * 512), __func__);
     }
 
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);

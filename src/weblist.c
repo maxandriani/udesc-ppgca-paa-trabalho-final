@@ -32,17 +32,22 @@ int _search_and_delete_by_value(list_p list, void *value, compare_fn cmp) {
 }
 
 int _find_min_value(list_p list, void *value, compare_fn cmp) {
-    void *current = malloc(list->data_size);
+    void *current;
     int idx = -1;
 
-    memset(value, 0, list->data_size);
-    memset(current, 0, list->data_size);
+    if (list->count == 0)
+        return idx;
 
-    for (size_t i = 0; i < list->count; i++) {
+    rBegin(list->data, value);
+    iEnd(list->data, value);
+
+    current = malloc(list->data_size);
+
+    for (size_t i = 1; i < list->count; i++) {
         rBegin(list->data, current);
         iEnd(list->data, current);
         
-        if (i == 0 || cmp(current, value) < 0) {
+        if (cmp(current, value) < 0) {
             memcpy(value, current, list->data_size);
             idx = i;
             break;
@@ -55,17 +60,22 @@ int _find_min_value(list_p list, void *value, compare_fn cmp) {
 }
 
 int _find_max_value(list_p list, void *value, compare_fn cmp) {
-    void *current = malloc(list->data_size);
+    void *current;
     int idx = -1;
 
-    memset(value, 0, list->data_size);
-    memset(current, 0, list->data_size);
+    if (list->count == 0)
+        return idx;
 
-    for (size_t i = 0; i < list->count; i++) {
+    rBegin(list->data, value);
+    iEnd(list->data, value);
+
+    current = malloc(list->data_size);
+
+    for (size_t i = 1; i < list->count; i++) {
         rBegin(list->data, current);
         iEnd(list->data, current);
         
-        if (i == 0 || cmp(current, value) > 0) {
+        if (cmp(current, value) > 0) {
             memcpy(value, current, list->data_size);
             idx = i;
             break;
@@ -170,7 +180,7 @@ int weblist_destruct(weblist_pp pp_weblist) {
     return _destroy_node(pp_weblist);
 }
 
-void _update_index(weblist_p node, int key, void * element) {
+void _update_index(weblist_p node, int key, void *element) {
     int divisor = key / pow(8, (node->depth - node->level));
     int idx = divisor % 8;
 
@@ -184,20 +194,20 @@ void _update_index(weblist_p node, int key, void * element) {
 }
 
 void _shift_left(list_p list, compare_fn cmp) {
-    list_p current = list;
-    void *element = malloc(list->data_size);
+    list_p current = list->next;
+    void *element;
     
-    while (current->next != NULL && current->next->count == 0)
+    while (current != NULL && current->count == 0)
         current = current->next;
 
+    if (current == NULL) return;
+
+    element = malloc(list->data_size);
     _find_min_value(current, element, cmp);
-    rEnd(current->data, element);
-    current->count--;
     iEnd(list->data, element);
     list->count++;
-
-    _find_min_value(current, element, cmp);
-    _update_index(current->root, current->key, element);
+    rEnd(current->data, element);
+    current->count--;
 
     free(element);
 }
@@ -209,12 +219,10 @@ void _shift_right(list_p list, compare_fn cmp) {
     if (list->next == NULL) return;
 
     _find_max_value(list, element, cmp);
-    rEnd(list->data, element);
-    list->count--;
     iEnd(current->data, element);
     current->count++;
-
-    _update_index(current->root, current->key, element);
+    rEnd(list->data, element);
+    list->count--;
     
     free(element);
 }
@@ -226,6 +234,8 @@ void _balance(weblist_p root, compare_fn cmp) {
     size_t min_count = 0;
     int total_of_keys;
     int idx_flip;
+    int should_rebuild = 0;
+    void *element = NULL;
 
     weblist_total_of_keys(root, &total_of_keys);
     weblist_count(root, &count);
@@ -234,19 +244,36 @@ void _balance(weblist_p root, compare_fn cmp) {
     idx_flip = count % total_of_keys;
 
     while (current != NULL) {
+        should_rebuild = 0;
         // metade do count + 1 --- resto
         if (current->key < idx_flip) {
-            while (current->count < (min_count + 1))
+            while (current->count < (min_count + 1)) {
                 _shift_left(current, cmp);
+                should_rebuild = 1;
+            }
 
-            while (current->count > (min_count + 1))
+            while (current->count > (min_count + 1)) {
                 _shift_right(current, cmp);
+                should_rebuild = 1;
+            }
         } else {
-            while (current->count < min_count)
+            while (current->count < min_count) {
                 _shift_left(current, cmp);
+                should_rebuild = 1;
+            }
 
-            while (current->count > min_count)
+            while (current->count > min_count) {
                 _shift_right(current, cmp);
+                should_rebuild = 1;
+            }
+        }
+
+        if (should_rebuild == 1) {
+            element = malloc(current->data_size);
+            _find_min_value(current, element, cmp);
+            _update_index(current->root, current->key, element);
+            free(element);
+            element = NULL;
         }
         current = current->next;
     }
@@ -254,7 +281,7 @@ void _balance(weblist_p root, compare_fn cmp) {
 
 size_t _calc_insert_idx(weblist_p root, void *data, compare_fn cmp) {
     size_t idx = 0;
-    while (idx < 8 && root->boundaries[idx] != NULL && cmp(root->boundaries[idx], data) < 0)
+    while (idx < 7 && root->boundaries[idx + 1] != NULL && cmp(root->boundaries[idx + 1], data) < 0)
         idx++;
     return idx;
 }
