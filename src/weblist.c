@@ -99,11 +99,11 @@ int _create_node(weblist_pp root, list_pp last, size_t level, size_t depth, size
     (*root)->level = level;
     (*root)->depth = depth;
     (*root)->data_size = data_size;
-    memset((*root)->boundaries, 0, data_size * 8);
     
-    if (_is_leaf_node(*root)) {
+    for (size_t i = 0; i < 8; i++) {
+        if (_is_leaf_node(*root)) {
         // Cria as listas
-        for (size_t i = 0; i < 8; i++) {
+        
             if (_create_leaf_node(&((*root)->leafs[i].list), data_size) == FAIL) return FAIL;
             
             if (*last != NULL) {
@@ -114,13 +114,13 @@ int _create_node(weblist_pp root, list_pp last, size_t level, size_t depth, size
             (*root)->leafs[i].list->prev = *last;
             (*last) = (*root)->leafs[i].list;
             (*last)->root = (*root);
-        }
-    } else {
+        } else {
         // Cria um nó
-        for (size_t i = 0; i < 8; i++) {
             if (_create_node(&((*root)->leafs[i].node), last, level + 1, depth, data_size) == FAIL) return FAIL;
             (*root)->leafs[i].node->root = (*root);
         }
+
+        (*root)->boundaries[i] = NULL;
     }
 
     return SUCCESS;
@@ -139,16 +139,16 @@ int _destroy_leaf_node(list_pp list) {
 }
 
 int _destroy_node(weblist_pp root) {
-    if (_is_leaf_node(*root)) {
-        for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < 8; i++) {
+        if (_is_leaf_node(*root)) {
             if (_destroy_leaf_node(&(*root)->leafs[i].list) == FAIL)
                 return FAIL;
-        }
-    } else {
-        for (size_t i = 0; i < 8; i++) {
+        } else {
             if (_destroy_node(&(*root)->leafs[i].node) == FAIL)
                 return FAIL;
         }
+        if ((*root)->boundaries[i] != NULL)
+            free((*root)->boundaries[i]);
     }
 
     free(*root);
@@ -179,35 +179,45 @@ void _shift_left(list_p list, compare_fn cmp) {
 
     _find_min_value(current, element, cmp);
     rEnd(current->data, element);
+    current->count--;
     iEnd(list->data, element);
+    list->count++;
 
     free(element);
 }
 
 void _shift_right(list_p list, compare_fn cmp) {
-    list_p current = list;
+    list_p current = list->next;
     void *element = malloc(list->data_size);
     
-    while (current->prev != NULL && current->prev->count == 0)
-        current = current->prev;
+    if (list->next == NULL) return;
 
-    _find_min_value(current, element, cmp);
-    rEnd(current->data, element);
-    iEnd(list->data, element);
+    _find_max_value(list, element, cmp);
+    rEnd(list->data, element);
+    list->count--;
+    iEnd(current->data, element);
+    current->count++;
 
     free(element);
 }
 
 void _rebuild_index(weblist_p root, compare_fn cmp) {
     if (_is_leaf_node(root)) {
-        for (size_t i = 0; i < 7; i++)
-            _find_min_value(root->leafs[i + 1].list, &root->boundaries[i], cmp);
+        for (size_t i = 0; i < 7; i++) {
+            if (root->leafs[i + 1].list->count > 0) {
+                if (root->boundaries[i] == NULL)
+                    root->boundaries[i] = malloc(root->data_size);
+                _find_min_value(root->leafs[i + 1].list, root->boundaries[i], cmp);
+            }
+        }
     } else {
         for (size_t i = 0; i < 8; i++) {
             _rebuild_index(root->leafs[i].node, cmp);
         }
         for (size_t i = 0; i < 7; i++) {
-            memcpy(&root->boundaries[i], &(root->leafs[i + 1].node->boundaries[0]), root->data_size);
+            if (root->leafs[i + 1].node->boundaries[0] == NULL) continue;
+            if (root->boundaries[i] == NULL) root->boundaries[i] = malloc(root->data_size);
+            memcpy(root->boundaries[i], root->leafs[i + 1].node->boundaries[0], root->data_size);
         }
     }
 };
@@ -263,8 +273,7 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
         return SUCCESS;
     } else {
         for (size_t i = 0; i < 7; i++) {
-            if (root->boundaries[i] == NULL || cmp(&root->boundaries[i], data) < 0) {
-                // insert left
+            if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0) {
                 return _add_data(root->leafs[i].node, data, cmp);
             }
         }
@@ -482,7 +491,7 @@ int weblist_total_of_keys(weblist_p weblist, int *count) {
     if (weblist == NULL || count == NULL)
         return FAIL;
 
-    *count = pow(8, weblist->level);
+    *count = pow(8, (weblist->depth + 1));
 
     return SUCCESS;
 }
