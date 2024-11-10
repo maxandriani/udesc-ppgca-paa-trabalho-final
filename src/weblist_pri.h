@@ -43,7 +43,7 @@ int _destroy_leaf_node(list_pp list);
 int _destroy_node(weblist_pp root);
 void _shift_left(list_p list, compare_fn cmp);
 void _shift_right(list_p list, compare_fn cmp);
-void _rebuild_index(weblist_p root, compare_fn cmp);
+void _update_index(weblist_p node, int key, void * element);
 void _balance(weblist_p root, compare_fn cmp);
 size_t _calc_insert_idx(weblist_p root, void *data, compare_fn cmp);
 int _add_data(weblist_p root, void *data, compare_fn cmp);

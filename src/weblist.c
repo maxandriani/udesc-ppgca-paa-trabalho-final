@@ -170,6 +170,19 @@ int weblist_destruct(weblist_pp pp_weblist) {
     return _destroy_node(pp_weblist);
 }
 
+void _update_index(weblist_p node, int key, void * element) {
+    int divisor = key / pow(8, (node->depth - node->level));
+    int idx = divisor % 8;
+
+    if (node->boundaries[idx] == NULL)
+        node->boundaries[idx] = malloc(node->data_size);
+
+    memcpy(node->boundaries[idx], element, node->data_size);
+
+    if (idx == 0 && node->root != NULL)
+        _update_index(node->root, key, element);
+}
+
 void _shift_left(list_p list, compare_fn cmp) {
     list_p current = list;
     void *element = malloc(list->data_size);
@@ -182,6 +195,9 @@ void _shift_left(list_p list, compare_fn cmp) {
     current->count--;
     iEnd(list->data, element);
     list->count++;
+
+    _find_min_value(current, element, cmp);
+    _update_index(current->root, current->key, element);
 
     free(element);
 }
@@ -198,29 +214,10 @@ void _shift_right(list_p list, compare_fn cmp) {
     iEnd(current->data, element);
     current->count++;
 
+    _update_index(current->root, current->key, element);
+    
     free(element);
 }
-
-void _rebuild_index(weblist_p root, compare_fn cmp) {
-    if (_is_leaf_node(root)) {
-        for (size_t i = 0; i < 7; i++) {
-            if (root->leafs[i + 1].list->count > 0) {
-                if (root->boundaries[i] == NULL)
-                    root->boundaries[i] = malloc(root->data_size);
-                _find_min_value(root->leafs[i + 1].list, root->boundaries[i], cmp);
-            }
-        }
-    } else {
-        for (size_t i = 0; i < 8; i++) {
-            _rebuild_index(root->leafs[i].node, cmp);
-        }
-        for (size_t i = 0; i < 7; i++) {
-            if (root->leafs[i + 1].node->boundaries[0] == NULL) continue;
-            if (root->boundaries[i] == NULL) root->boundaries[i] = malloc(root->data_size);
-            memcpy(root->boundaries[i], root->leafs[i + 1].node->boundaries[0], root->data_size);
-        }
-    }
-};
 
 void _balance(weblist_p root, compare_fn cmp) {
     list_p head = _get_leaftish_leaf(root);
@@ -272,9 +269,9 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
 
         return SUCCESS;
     } else {
-        for (size_t i = 0; i < 7; i++) {
+        for (size_t i = 1; i < 8; i++) {
             if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0) {
-                return _add_data(root->leafs[i].node, data, cmp);
+                return _add_data(root->leafs[i-1].node, data, cmp);
             }
         }
 
@@ -289,7 +286,7 @@ int weblist_add_data(weblist_p weblist, void *data, compare_fn cmp) {
         return FAIL;
 
     _balance(weblist, cmp);
-    _rebuild_index(weblist, cmp);
+    //_rebuild_index(weblist, cmp);
 
     return SUCCESS;
 }
@@ -304,10 +301,10 @@ int _remove_data(weblist_p root, void *data, compare_fn cmp) {
 
         return SUCCESS;
     } else {
-        for (size_t i = 0; i < 7; i++) {
-            if (root->boundaries[i] == NULL || cmp(&root->boundaries[i], data) < 0) {
+        for (size_t i = 1; i < 8; i++) {
+            if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0) {
                 // insert left
-                return _add_data(root->leafs[i].node, data, cmp);
+                return _add_data(root->leafs[i-1].node, data, cmp);
             }
         }
 
@@ -323,7 +320,7 @@ int weblist_remove_data(weblist_p weblist, void *data, compare_fn cmp) {
         return FAIL;
     
     _balance(weblist, cmp);
-    _rebuild_index(weblist, cmp);
+    //_rebuild_index(weblist, cmp);
 
     return SUCCESS;
 }
@@ -338,9 +335,9 @@ int _search_data(weblist_p root, void *data, compare_fn cmp) {
 
         return FAIL;
     } else {
-        for (size_t i = 0; i < 7; i++) {
-            if (root->boundaries[i] == NULL || cmp(&root->boundaries[i], data) < 0)
-                return _add_data(root->leafs[i].node, data, cmp);
+        for (size_t i = 1; i < 8; i++) {
+            if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0)
+                return _add_data(root->leafs[i-1].node, data, cmp);
         }
 
         return _add_data(root->leafs[7].node, data, cmp);
@@ -452,7 +449,7 @@ int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_
     free(element);
 
     _balance(weblist, cmp);
-    _rebuild_index(weblist, cmp);
+    //_rebuild_index(weblist, cmp);
     
     return SUCCESS;
 }
@@ -468,7 +465,7 @@ int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list, compare_
 
     cleanDDLL(local_list->data);
     _balance(weblist, cmp);
-    _rebuild_index(weblist, cmp);
+    //_rebuild_index(weblist, cmp);
 
     return SUCCESS;
 }
