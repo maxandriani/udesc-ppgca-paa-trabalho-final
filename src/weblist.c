@@ -205,10 +205,10 @@ void _update_index(weblist_p node, int key, void *element) {
     if (node->boundaries[idx] == NULL)
         node->boundaries[idx] = malloc(node->data_size);
 
-    // memcpy(node->boundaries[idx], element, node->data_size);
+    memcpy(node->boundaries[idx], element, node->data_size);
 
-    if (idx == 0 && node->root != NULL)
-        _update_index(node->root, key, element);
+    if (idx == 0 && node->root != NULL);
+        // _update_index(node->root, key, element);
 }
 
 void _shift_left(list_p list, compare_fn cmp) {

@@ -9,13 +9,13 @@
 typedef struct list_t *list_p, **list_pp;
 
 typedef struct list_t {
+    weblist_p root;
     int key;
     size_t count;
     size_t data_size;
     pDDLL data;
     list_p next;
     list_p prev;
-    weblist_p root;
 } list_t;
 
 typedef union leaf_t {
