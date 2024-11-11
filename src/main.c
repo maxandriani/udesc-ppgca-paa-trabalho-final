@@ -53,7 +53,8 @@ void process_int_init(size_t count) {
 }
 
 void process_int_destruct() {
-    free(PROCESS_WALK_RESULT);
+    if (PROCESS_WALK_RESULT != NULL)
+        free(PROCESS_WALK_RESULT);
     PROCESS_WALK_RESULT = NULL;
     PROCESS_WALK_RESULT_IDX = 0;
 }
