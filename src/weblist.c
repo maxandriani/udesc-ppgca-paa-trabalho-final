@@ -301,14 +301,14 @@ void _balance(weblist_p root, compare_fn cmp) {
 
 size_t _calc_insert_idx(weblist_p root, void *data, compare_fn cmp) {
     size_t idx = 0;
-    while (idx < 7 && root->boundaries[idx + 1] != NULL && cmp(root->boundaries[idx + 1], data) < 0)
+    while (idx <= 6 && root->boundaries[(idx + 1)] != NULL && cmp(root->boundaries[(idx + 1)], data) < 0)
         idx++;
     return idx;
 }
 
 int _add_data(weblist_p root, void *data, compare_fn cmp) {
     if (_is_leaf_node(root)) {
-        size_t idx = 0; // _calc_insert_idx(root, data, cmp);
+        size_t idx = 0; //_calc_insert_idx(root, data, cmp);
         list_p leaf = root->leafs[idx].list;
 
         leaf->count++;
