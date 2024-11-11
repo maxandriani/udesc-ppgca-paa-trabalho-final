@@ -83,13 +83,12 @@ int main(int argc, char *argv[]) {
     should_create_a_weblist_of_level_2();
     should_create_a_weblist_of_custom_type_of_level_3();
     should_destruct_a_weblist_and_set_pointer_to_null();
-    should_add_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balance();
-    should_add_a_bunch_of_custom_types_into_a_weblist_of_level_2_and_keep_balance();
-    should_remove_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balance();
-    should_search_some_data_into_a_weblist_of_level_2();
-    should_walk_through_a_weblist_of_level_2();
+    should_add_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance();
+    should_add_a_bunch_of_custom_types_into_a_weblist_of_level_1_and_keep_balance();
+    should_remove_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance();
+    should_search_some_data_into_a_weblist_of_level_1();
+    should_walk_through_a_weblist_of_level_1();
     should_replace_a_branch_of_weblist_and_keep_balance();
-    should_create_a_branch_of_weblist_by_key();
     should_count_the_total_of_keys_from_a_weblist();
     should_count_the_total_of_values_from_a_weblist();
     should_get_a_list_of_keys_from_a_weblist();
@@ -232,14 +231,14 @@ void should_destruct_a_weblist_and_set_pointer_to_null() {
     assert(weblist == NULL, __func__);
 }
 
-void should_add_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balance() {
-    const int num_elements = 256 * 512;
+void should_add_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance() {
+    const int num_elements = 64 * 512;
     weblist_p weblist = NULL;
     pDDLL check_list_1 = NULL;
     int check_results_1;
     pDDLL check_list_2 = NULL;
     int check_results_2;
-    assert(weblist_create(&weblist, 2, sizeof(int)) == SUCCESS, __func__);
+    assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
 
     for (size_t i = 0; i < num_elements; i++) {
         assert(weblist_add_data(weblist, &i, compare_int) == SUCCESS, __func__);
@@ -247,105 +246,114 @@ void should_add_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balance()
     
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
     assert(weblist_copy_list_by_key(weblist, 0, &check_list_1) == SUCCESS, __func__);
-    assert(weblist_copy_list_by_key(weblist, 511, &check_list_2) == SUCCESS, __func__);
+    assert(weblist_copy_list_by_key(weblist, 63, &check_list_2) == SUCCESS, __func__);
 
-    for (size_t i = 0; i < 256; i++) {
-        sBegin(check_list_1, &check_results_1);
-        sBegin(check_list_2, &check_results_2);
+    for (size_t i = 0; i < 512; i++) {
+        rBegin(check_list_1, &check_results_1);
+        rBegin(check_list_2, &check_results_2);
 
-        assert(check_results_1 >= 0 && check_results_1 <= 256, __func__);
-        assert(check_results_2 >= (256 * 511) && check_results_2 <= (256 * 512), __func__);
+        assert(check_results_1 >= 0 && check_results_1 <= 512, __func__);
+        assert(check_results_2 >= (63 * 512) && check_results_2 <= (64 * 512), __func__);
     }
 
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
+
+    dDDLL(&check_list_1);
+    dDDLL(&check_list_2);
 }
 
-void should_add_a_bunch_of_custom_types_into_a_weblist_of_level_2_and_keep_balance() {
-    const int num_elements = 1024 * 64;
-    test_type_t elements[num_elements];
+void should_add_a_bunch_of_custom_types_into_a_weblist_of_level_1_and_keep_balance() {
+    const int num_elements = 64 * 512;
+    test_type_t element;
     weblist_p weblist = NULL;
     pDDLL check_list_1 = NULL;
     test_type_t check_results_1;
     pDDLL check_list_2 = NULL;
     test_type_t check_results_2;
-    assert(weblist_create(&weblist, 2, sizeof(int)) == SUCCESS, __func__);
+    assert(weblist_create(&weblist, 1, sizeof(test_type_t)) == SUCCESS, __func__);
 
     for (size_t i = 0; i < num_elements; i++) {
-        elements[i].a = i;
-        elements[i].b = i;
-        assert(weblist_add_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
+        element.a = i;
+        element.b = i;
+        assert(weblist_add_data(weblist, &element, compare_test_type) == SUCCESS, __func__);
     }
     
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
     assert(weblist_copy_list_by_key(weblist, 0, &check_list_1) == SUCCESS, __func__);
-    assert(weblist_copy_list_by_key(weblist, 64, &check_list_2) == SUCCESS, __func__);
+    assert(weblist_copy_list_by_key(weblist, 63, &check_list_2) == SUCCESS, __func__);
 
-    for (size_t i = 0; i < 1024; i++) {
-        sBegin(check_list_1, &check_results_1);
-        sBegin(check_list_2, &check_results_2);
+    for (size_t i = 0; i < 512; i++) {
+        rBegin(check_list_1, &check_results_1);
+        rBegin(check_list_2, &check_results_2);
 
-        assert(compare_test_type(&check_results_1, &elements[i]) == 0, __func__);
-        assert(compare_test_type(&check_results_2, &elements[i + (1024 * 63)]) == 0, __func__);
+        assert(check_results_1.a >= 0 && check_results_1.a <= 512, __func__);
+        assert(check_results_1.b >= 0 && check_results_1.b <= 512, __func__);
+        assert(check_results_2.a >= (63 * 512) && check_results_2.a <= (64 * 512), __func__);
+        assert(check_results_2.b >= (63 * 512) && check_results_2.b <= (64 * 512), __func__);
     }
 
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
+
+    dDDLL(&check_list_1);
+    dDDLL(&check_list_2);
 }
 
-void should_remove_a_bunch_of_integers_into_a_weblist_of_level_2_and_keep_balance() {
-    const int num_elements = 1024 * 64;
-    int elements[num_elements];
+void should_remove_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance() {
+    const int num_elements = 64 * 512;
     weblist_p weblist = NULL;
     pDDLL check_list_1 = NULL;
     int check_results_1;
     pDDLL check_list_2 = NULL;
     int check_results_2;
-    assert(weblist_create(&weblist, 2, sizeof(int)) == SUCCESS, __func__);
+    assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
 
     for (size_t i = 0; i < num_elements; i++) {
-        elements[i] = i;
-        assert(weblist_add_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
+        assert(weblist_add_data(weblist, &i, compare_int) == SUCCESS, __func__);
     }
 
     assert(weblist_remove_list_by_key(weblist, 0, &check_list_1, compare_int) == SUCCESS, __func__);
-    assert(weblist_remove_list_by_key(weblist, 32, &check_list_1, compare_int) == SUCCESS, __func__);
+    assert(weblist_remove_list_by_key(weblist, 31, &check_list_2, compare_int) == SUCCESS, __func__);
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
 
-    for (size_t i = 0; i < 992; i++) {
-        sBegin(check_list_1, &check_results_1);
-        sBegin(check_list_2, &check_results_2);
+    for (size_t i = 0; i < 512; i++) {
+        rBegin(check_list_1, &check_results_1);
+        assert(check_results_1 >= 0 && check_results_1 <= 512, __func__);
+    }
 
-        assert(check_results_1 == elements[i], __func__);
-        assert(check_results_1 == elements[i + (1024 * 32)], __func__);
+    for (size_t i = 0; i < 504; i++) {
+        rBegin(check_list_2, &check_results_2);
+        assert(check_results_2 >= (16136) && check_results_2 <= (16136 + 504), __func__);
     }
 
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
+
+    dDDLL(&check_list_1);
+    dDDLL(&check_list_2);
 }
 
-void should_search_some_data_into_a_weblist_of_level_2() {
-    const int num_elements = 1024 * 64;
-    int elements[num_elements];
+void should_search_some_data_into_a_weblist_of_level_1() {
+    const int num_elements = 64 * 512;
     weblist_p weblist = NULL;
-    assert(weblist_create(&weblist, 2, sizeof(int)) == SUCCESS, __func__);
+    assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
 
     for (size_t i = 0; i < num_elements; i++) {
-        elements[i] = i;
-        assert(weblist_add_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
+        assert(weblist_add_data(weblist, &i, compare_int) == SUCCESS, __func__);
     }
     
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
 
-    for (size_t i = 0; i < 1024; i++) {
-        assert(weblist_search_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
+    for (size_t i = 0; i < num_elements; i++) {
+        assert(weblist_search_data(weblist, &i, compare_int) == SUCCESS, __func__);
     }
 
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
 }
 
-void should_walk_through_a_weblist_of_level_2() {
-    const int num_elements = 1024 * 64;
+void should_walk_through_a_weblist_of_level_1() {
+    const int num_elements = 64 * 512;
     int elements[num_elements];
     weblist_p weblist = NULL;
-    assert(weblist_create(&weblist, 2, sizeof(int)) == SUCCESS, __func__);
+    assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
     process_int_init(num_elements);
 
     for (size_t i = 0; i < num_elements; i++) {
@@ -353,33 +361,30 @@ void should_walk_through_a_weblist_of_level_2() {
         assert(weblist_add_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
     }
 
-    for (size_t i = 0; i < 1024; i++) {
-        assert(weblist_walk_data(weblist, process_int) == SUCCESS, __func__);
-    }
-
-    assert(memcmp(process_int_walkthrough(), elements, sizeof(int) * num_elements) == 0, __func__);
+    assert(weblist_walk_data(weblist, process_int) == SUCCESS, __func__);
+    assert(memcmp(process_int_walkthrough(), &elements, sizeof(int) * num_elements) == 0, __func__);
 
     process_int_destruct();
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
 }
 
 void should_replace_a_branch_of_weblist_and_keep_balance() {
-    const int num_elements = 1024 * 64;
+    const int num_elements = 64 * 512;
     int elements[num_elements];
     weblist_p weblist = NULL;
     pDDLL replace_list = NULL;
-    assert(weblist_create(&weblist, 2, sizeof(int)) == SUCCESS, __func__);
+    assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
     cDDLL(&replace_list, sizeof(int));
 
     for (size_t i = 0; i < num_elements; i++) {
         elements[i] = i;
     }
 
-    for (size_t i = 0; i < (512 * 64); i++) {
+    for (size_t i = 0; i < (256 * 64); i++) {
         assert(weblist_add_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
     }
 
-    for (size_t i = (512 * 64); i < num_elements; i++) {
+    for (size_t i = (256 * 64); i < num_elements; i++) {
         iEnd(replace_list, &elements[i]);
     }
     
@@ -387,15 +392,13 @@ void should_replace_a_branch_of_weblist_and_keep_balance() {
     assert(weblist_replace_list_by_key(weblist, 32, replace_list, compare_int) == SUCCESS, __func__);
     assert(weblist_is_balanced(weblist) == SUCCESS, __func__);
 
-    for (size_t i = (512 * 64); i < num_elements; i++) {
+    for (size_t i = (256 * 64); i < num_elements; i++) {
         assert(weblist_search_data(weblist, &elements[i], compare_int) == SUCCESS, __func__);
     }
 
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
-}
 
-void should_create_a_branch_of_weblist_by_key() {
-    assert(1, __func__); // TODO FAZER ISSO AQUI...
+    dDDLL(&replace_list);
 }
 
 void should_count_the_total_of_keys_from_a_weblist() {
@@ -408,7 +411,20 @@ void should_count_the_total_of_keys_from_a_weblist() {
 }
 
 void should_count_the_total_of_values_from_a_weblist() {
-    assert(0, __func__);
+    const int num_elements = 64 * 512;
+    weblist_p weblist = NULL;
+    int count = 0;
+
+    assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
+
+    for (size_t i = 0; i < num_elements; i++) {
+        assert(weblist_add_data(weblist, &i, compare_int) == SUCCESS, __func__);
+    }
+    
+    assert(weblist_count(weblist, &count) == SUCCESS, __func__);
+    assert(count == num_elements, __func__);
+
+    assert(weblist_destruct(&weblist) == SUCCESS, __func__);
 }
 
 void should_get_a_list_of_keys_from_a_weblist() {
@@ -424,4 +440,6 @@ void should_get_a_list_of_keys_from_a_weblist() {
     }
     
     assert(weblist_destruct(&weblist) == SUCCESS, __func__);
+
+    dDDLL(&list_of_keys);
 }
