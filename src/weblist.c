@@ -197,7 +197,7 @@ int weblist_destruct(weblist_pp pp_weblist) {
 }
 
 void _update_index(weblist_p node, int key, void *element) {
-    if (node == NULL) return;
+    if (node == NULL || element == NULL) return;
 
     int divisor = key / pow(8, (node->depth - node->level));
     int idx = divisor % 8;
@@ -291,7 +291,7 @@ void _balance(weblist_p root, compare_fn cmp) {
         if (should_rebuild == 1) {
             element = malloc(current->data_size);
             _find_min_value(current, element, cmp);
-            // _update_index(current->root, current->key, element);
+            _update_index(current->root, current->key, element);
             free(element);
             element = NULL;
         }
