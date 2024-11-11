@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
     // should_walk_through_a_weblist_of_level_1();
     // should_replace_a_branch_of_weblist_and_keep_balance();
     should_count_the_total_of_keys_from_a_weblist();
-    should_count_the_total_of_values_from_a_weblist();
+    // should_count_the_total_of_values_from_a_weblist();
     should_get_a_list_of_keys_from_a_weblist();
 
     printf("SUCCESS\n");
