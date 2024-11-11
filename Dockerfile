@@ -4,4 +4,4 @@ RUN mkdir /app
 WORKDIR /app
 COPY . .
 RUN make ci
-CMD valgrind ./bin/weblist
+CMD valgrind --leak-check=yes --track-origins=yes ./bin/weblist

@@ -291,6 +291,7 @@ void _balance(weblist_p root, compare_fn cmp) {
 
         if (should_rebuild == 1) {
             element = malloc(current->data_size);
+            memset(element, 0, current->data_size);
             _find_min_value(current, element, cmp);
             _update_index(current->root, current->key, element);
             free(element);
@@ -302,7 +303,7 @@ void _balance(weblist_p root, compare_fn cmp) {
 
 size_t _calc_insert_idx(weblist_p root, void *data, compare_fn cmp) {
     size_t idx = 0;
-    while (idx <= 6 && root->boundaries[(idx + 1)] != NULL && cmp(root->boundaries[(idx + 1)], data) < 0)
+    while (idx <= 6 && ((void *)root->boundaries[(idx + 1)]) != NULL && cmp((void *)root->boundaries[(idx + 1)], data) < 0)
         idx++;
     return idx;
 }
@@ -318,7 +319,7 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
         return SUCCESS;
     } else {
         for (size_t i = 1; i < 8; i++) {
-            if (root->boundaries[i] == NULL || (root->boundaries[i] != NULL && cmp(data, root->boundaries[i]) < 0)) {
+            if (root->boundaries[i] == NULL || (((void *) root->boundaries[i]) != NULL && cmp(data, (void *)root->boundaries[i]) < 0)) {
                 return _add_data(root->leafs[i-1].node, data, cmp);
             }
         }
