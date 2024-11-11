@@ -289,7 +289,7 @@ void _balance(weblist_p root, compare_fn cmp) {
         if (should_rebuild == 1) {
             element = malloc(current->data_size);
             _find_min_value(current, element, cmp);
-            _update_index(current->root, current->key, element);
+            //_update_index(current->root, current->key, element);
             free(element);
             element = NULL;
         }
@@ -330,8 +330,7 @@ int weblist_add_data(weblist_p weblist, void *data, compare_fn cmp) {
     if (_add_data(weblist, data, cmp) == FAIL)
         return FAIL;
 
-    //_balance(weblist, cmp);
-    //_rebuild_index(weblist, cmp);
+    _balance(weblist, cmp);
 
     return SUCCESS;
 }
@@ -365,7 +364,6 @@ int weblist_remove_data(weblist_p weblist, void *data, compare_fn cmp) {
         return FAIL;
     
     _balance(weblist, cmp);
-    //_rebuild_index(weblist, cmp);
 
     return SUCCESS;
 }
