@@ -50,8 +50,9 @@ int _add_data(weblist_p root, void *data, compare_fn cmp);
 int _remove_data(weblist_p root, void *data, compare_fn cmp);
 int _search_data(weblist_p root, void *data, compare_fn cmp);
 int _walk_ddll_list(list_p list, process_fn cb);
-int _walk_node(weblist_p root, size_t level, process_fn cb);
+int _walk_node(weblist_p root, process_fn cb);
 int _get_list_by_key(weblist_p root, list_pp list, int key);
 list_p _get_leaftish_leaf(weblist_p root);
+int _remove_list_data_by_value(list_p list, void *value, compare_fn cmp);
 
 #endif

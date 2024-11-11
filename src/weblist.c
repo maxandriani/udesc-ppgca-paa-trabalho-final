@@ -31,12 +31,33 @@ int _search_and_delete_by_value(list_p list, void *value, compare_fn cmp) {
     return idx;
 }
 
-int _find_min_value(list_p list, void *value, compare_fn cmp) {
+int _remove_list_data_by_value(list_p list, void *value, compare_fn cmp) {
     void *current;
-    int idx = -1;
 
     if (list->count == 0)
-        return idx;
+        return FAIL;
+
+    current = malloc(list->data_size);
+
+    for (size_t i = 0; i < list->count; i++) {
+        rBegin(list->data, current);
+        
+        if (cmp(current, value) == 0)
+            break;
+
+        iEnd(list->data, current);
+    }
+
+    free(current);
+
+    return SUCCESS;
+}
+
+int _find_min_value(list_p list, void *value, compare_fn cmp) {
+    void *current;
+
+    if (list->count == 0)
+        return FAIL;
 
     rBegin(list->data, value);
     iEnd(list->data, value);
@@ -49,22 +70,20 @@ int _find_min_value(list_p list, void *value, compare_fn cmp) {
         
         if (cmp(current, value) < 0) {
             memcpy(value, current, list->data_size);
-            idx = i;
             break;
         }
     }
 
     free(current);
 
-    return idx;
+    return SUCCESS;
 }
 
 int _find_max_value(list_p list, void *value, compare_fn cmp) {
     void *current;
-    int idx = -1;
 
     if (list->count == 0)
-        return idx;
+        return FAIL;
 
     rBegin(list->data, value);
     iEnd(list->data, value);
@@ -77,14 +96,13 @@ int _find_max_value(list_p list, void *value, compare_fn cmp) {
         
         if (cmp(current, value) > 0) {
             memcpy(value, current, list->data_size);
-            idx = i;
             break;
         }
     }
 
     free(current);
 
-    return idx;
+    return SUCCESS;
 }
 
 int _create_leaf_node(list_pp list, size_t data_size) {
@@ -203,10 +221,11 @@ void _shift_left(list_p list, compare_fn cmp) {
     if (current == NULL) return;
 
     element = malloc(list->data_size);
+
     _find_min_value(current, element, cmp);
     iEnd(list->data, element);
     list->count++;
-    rEnd(current->data, element);
+    _remove_list_data_by_value(current, element, cmp);
     current->count--;
 
     free(element);
@@ -214,14 +233,16 @@ void _shift_left(list_p list, compare_fn cmp) {
 
 void _shift_right(list_p list, compare_fn cmp) {
     list_p current = list->next;
-    void *element = malloc(list->data_size);
+    void *element = NULL;
     
     if (list->next == NULL) return;
+
+    element = malloc(list->data_size);
 
     _find_max_value(list, element, cmp);
     iEnd(current->data, element);
     current->count++;
-    rEnd(list->data, element);
+    _remove_list_data_by_value(list, element, cmp);
     list->count--;
     
     free(element);
@@ -231,7 +252,7 @@ void _balance(weblist_p root, compare_fn cmp) {
     list_p head = _get_leaftish_leaf(root);
     list_p current = head;
     int count = 0;
-    size_t min_count = 0;
+    size_t max_count = 0;
     int total_of_keys;
     int idx_flip;
     int should_rebuild = 0;
@@ -240,29 +261,28 @@ void _balance(weblist_p root, compare_fn cmp) {
     weblist_total_of_keys(root, &total_of_keys);
     weblist_count(root, &count);
     
-    min_count = count / total_of_keys;
+    max_count = count / total_of_keys;
     idx_flip = count % total_of_keys;
 
     while (current != NULL) {
-        should_rebuild = 0;
         // metade do count + 1 --- resto
         if (current->key < idx_flip) {
-            while (current->count < (min_count + 1)) {
+            while (current->count < (max_count + 1)) {
                 _shift_left(current, cmp);
                 should_rebuild = 1;
             }
 
-            while (current->count > (min_count + 1)) {
+            while (current->count > (max_count + 1)) {
                 _shift_right(current, cmp);
                 should_rebuild = 1;
             }
         } else {
-            while (current->count < min_count) {
+            while (current->count < max_count) {
                 _shift_left(current, cmp);
                 should_rebuild = 1;
             }
 
-            while (current->count > min_count) {
+            while (current->count > max_count) {
                 _shift_right(current, cmp);
                 should_rebuild = 1;
             }
@@ -297,7 +317,7 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
         return SUCCESS;
     } else {
         for (size_t i = 1; i < 8; i++) {
-            if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0) {
+            if (root->boundaries[i] == NULL || cmp(data, root->boundaries[i]) < 0) {
                 return _add_data(root->leafs[i-1].node, data, cmp);
             }
         }
@@ -329,7 +349,7 @@ int _remove_data(weblist_p root, void *data, compare_fn cmp) {
         return SUCCESS;
     } else {
         for (size_t i = 1; i < 8; i++) {
-            if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0) {
+            if (root->boundaries[i] == NULL || cmp(data, root->boundaries[i]) < 0) {
                 // insert left
                 return _add_data(root->leafs[i-1].node, data, cmp);
             }
@@ -363,7 +383,7 @@ int _search_data(weblist_p root, void *data, compare_fn cmp) {
         return FAIL;
     } else {
         for (size_t i = 1; i < 8; i++) {
-            if (root->boundaries[i] == NULL || cmp(root->boundaries[i], data) < 0)
+            if (root->boundaries[i] == NULL || cmp(data, root->boundaries[i]) < 0)
                 return _add_data(root->leafs[i-1].node, data, cmp);
         }
 
@@ -393,15 +413,15 @@ int _walk_ddll_list(list_p list, process_fn cb) {
     return result;
 }
 
-int _walk_node(weblist_p root, size_t level, process_fn cb) {
-    if (root->level == level) {
+int _walk_node(weblist_p root, process_fn cb) {
+    if (_is_leaf_node(root)) {
         for (size_t i = 0; i < 8; i++) {
             if (_walk_ddll_list(root->leafs[i].list, cb) != SUCCESS)
                 return FAIL;
         }
     } else {
         for (size_t i = 0; i < 8; i++) {
-            if (_walk_node(root->leafs[i].node, (level + 1), cb) != SUCCESS)
+            if (_walk_node(root->leafs[i].node, cb) != SUCCESS)
                 return FAIL;
         } 
     }
@@ -413,7 +433,7 @@ int weblist_walk_data(weblist_p weblist, process_fn cb) {
     if (weblist == NULL || cb == NULL)
         return FAIL;
 
-    return _walk_node(weblist, 0, cb);
+    return _walk_node(weblist, cb);
 }
 
 int _get_list_by_key(weblist_p root, list_pp list, int key) {
@@ -476,7 +496,6 @@ int weblist_replace_list_by_key(weblist_p weblist, int key, pDDLL list, compare_
     free(element);
 
     _balance(weblist, cmp);
-    //_rebuild_index(weblist, cmp);
     
     return SUCCESS;
 }
@@ -486,13 +505,22 @@ int weblist_remove_list_by_key(weblist_p weblist, int key, ppDDLL list, compare_
         return FAIL;
 
     list_p local_list = NULL;
+    void *element = NULL;
 
     if (_get_list_by_key(weblist, &local_list, key) == FAIL)
         return FAIL;
 
+    cDDLL(list, local_list->data_size);
+    element = malloc(local_list->data_size);
+    for (size_t i = 0; i < local_list->count; i++) {
+        rBegin(local_list->data, element);
+        iEnd(*list, element);
+    }
+    free(element);
+
+    local_list->count = 0;
     cleanDDLL(local_list->data);
     _balance(weblist, cmp);
-    //_rebuild_index(weblist, cmp);
 
     return SUCCESS;
 }
