@@ -4,7 +4,7 @@
 
 int * PROCESS_WALK_RESULT = NULL;
 size_t PROCESS_WALK_RESULT_IDX = 0;
-char LAST_ASSERT_MSG[1024] = "";
+char LAST_ASSERT_MSG[1024];
 
 void assert(int result, const char* fn_name) {
     if (result == 1) {
