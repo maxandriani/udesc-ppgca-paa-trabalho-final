@@ -125,6 +125,7 @@ int _create_node(weblist_pp root, list_pp last, size_t level, size_t depth, size
     (*root)->level = level;
     (*root)->depth = depth;
     (*root)->data_size = data_size;
+    (*root)->root = NULL;
     
     for (size_t i = 0; i < 8; i++) {
         if (_is_leaf_node(*root)) {
@@ -264,7 +265,7 @@ void _balance(weblist_p root, compare_fn cmp) {
     max_count = count / total_of_keys;
     idx_flip = count % total_of_keys;
 
-    while (current != NULL && current->next != NULL) {
+    while (current != NULL) {
         // metade do count + 1 --- resto
         if (current->key < idx_flip) {
             while (current->count < (max_count + 1)) {
@@ -317,7 +318,7 @@ int _add_data(weblist_p root, void *data, compare_fn cmp) {
         return SUCCESS;
     } else {
         for (size_t i = 1; i < 8; i++) {
-            if (root->boundaries[i] == NULL || cmp(data, root->boundaries[i]) < 0) {
+            if (root->boundaries[i] == NULL || (root->boundaries[i] != NULL && cmp(data, root->boundaries[i]) < 0)) {
                 return _add_data(root->leafs[i-1].node, data, cmp);
             }
         }

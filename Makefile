@@ -17,6 +17,10 @@ ci: clean all
 tests: ci
 	$(BINDIR)/$(PROGRAM_NAME)
 
+memcheck:
+	docker build -t weblist:latest .
+	docker run weblist:latest
+
 # Compile all C sorce files
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
