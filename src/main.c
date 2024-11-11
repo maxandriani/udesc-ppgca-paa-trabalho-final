@@ -83,8 +83,8 @@ int main(int argc, char *argv[]) {
     should_create_a_weblist_of_level_1();
     should_create_a_weblist_of_level_2();
     should_create_a_weblist_of_custom_type_of_level_3();
-    // should_destruct_a_weblist_and_set_pointer_to_null();
-    // should_add_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance();
+    should_destruct_a_weblist_and_set_pointer_to_null();
+    should_add_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance();
     // should_add_a_bunch_of_custom_types_into_a_weblist_of_level_1_and_keep_balance();
     // should_remove_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance();
     // should_search_some_data_into_a_weblist_of_level_1();
