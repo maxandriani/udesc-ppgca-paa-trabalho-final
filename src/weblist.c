@@ -330,7 +330,7 @@ int weblist_add_data(weblist_p weblist, void *data, compare_fn cmp) {
     if (_add_data(weblist, data, cmp) == FAIL)
         return FAIL;
 
-    _balance(weblist, cmp);
+    //_balance(weblist, cmp);
     //_rebuild_index(weblist, cmp);
 
     return SUCCESS;
