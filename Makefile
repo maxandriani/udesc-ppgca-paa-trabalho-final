@@ -5,7 +5,7 @@ BINDIR=./bin
 PROGRAM_NAME=weblist
 
 # Generates bin folder and the main program
-all: $(BINDIR) $(BINDIR)/$(PROGRAM_NAME) $(BINDIR)/$(TEST_NAME)
+all: $(BINDIR) $(BINDIR)/$(PROGRAM_NAME)
 
 # Delete binary files
 clean:
