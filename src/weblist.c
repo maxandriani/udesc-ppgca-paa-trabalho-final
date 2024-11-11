@@ -70,7 +70,6 @@ int _find_min_value(list_p list, void *value, compare_fn cmp) {
         
         if (cmp(current, value) < 0) {
             memcpy(value, current, list->data_size);
-            break;
         }
     }
 
@@ -96,7 +95,6 @@ int _find_max_value(list_p list, void *value, compare_fn cmp) {
         
         if (cmp(current, value) > 0) {
             memcpy(value, current, list->data_size);
-            break;
         }
     }
 
