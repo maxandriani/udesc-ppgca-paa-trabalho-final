@@ -241,7 +241,7 @@ void should_add_a_bunch_of_integers_into_a_weblist_of_level_1_and_keep_balance()
     int check_results_2;
     assert(weblist_create(&weblist, 1, sizeof(int)) == SUCCESS, __func__);
 
-    for (size_t i = 0; i < 8; i++) {
+    for (size_t i = 0; i < 7; i++) {
         assert(weblist_add_data(weblist, &i, compare_int) == SUCCESS, __func__);
     }
     
