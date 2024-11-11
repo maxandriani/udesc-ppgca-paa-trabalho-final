@@ -12,5 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: make tests
-      run: make tests
+    - name: make ci
+      run: make ci
+    - name: run tests
+      run: ./bin/weblist
